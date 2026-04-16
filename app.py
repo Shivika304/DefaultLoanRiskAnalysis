@@ -24,7 +24,7 @@ import pandas as pd              # Data manipulation (like Excel in Python)
 from flask import Flask, render_template, request, jsonify
 
 # Database
-from database import db_manager
+from DefaultLoanRiskAnalysis.database import db_manager
 
 # scikit-learn = the ML library we use
 # RandomForestClassifier = our main prediction model (explained below)
@@ -646,6 +646,12 @@ def prepare_features(form_data, is_new_customer):
 def index():
     """Serve the main web page."""
     return render_template('index.html')
+
+
+@app.route('/assessment-history-page')
+def assessment_history_page():
+    """Serve the assessment history page."""
+    return render_template('assessment_history.html')
 
 
 @app.route('/predict', methods=['POST'])
