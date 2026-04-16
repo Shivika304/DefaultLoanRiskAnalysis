@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoanGuard AI — Loan Default Risk Predictor</title>
+
+  <!-- Chart.js: for radar chart and bar chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <!-- Font Awesome: icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- PARTICLE CANVAS BACKGROUND                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- HEADER / NAV                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon"><i class="fas fa-shield-halved"></i></span>
+      <span class="logo-text">Loan<span class="accent">Guard</span> AI</span>
+    </div>
+    <nav class="header-nav">
+      <a href="#how-it-works" class="nav-link">How It Works</a>
+      <a href="/assessment-history-page" class="nav-link">Assessment History</a>
+      <div class="currency-selector">
+        <i class="fas fa-globe"></i>
+        <select id="currency-select">
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="INR">INR (₹)</option>
+          <option value="JPY">JPY (¥)</option>
+          <option value="AUD">AUD (A$)</option>
+        </select>
+      </div>
+      <a href="#assess" class="nav-link nav-cta">Start Assessment</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- HERO SECTION                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="hero-content">
+    <div class="hero-badge"><i class="fas fa-brain"></i> AI-Powered Risk Analysis</div>
+    <h1 class="hero-title">
+      Know Before You<br/>
+      <span class="gradient-text">Lend</span>
+    </h1>
+    <p class="hero-subtitle">
+      LoanGuard AI uses machine learning trained on thousands of loan records to instantly
+      assess a borrower's default risk — helping banks make data-driven lending decisions
+      with precision and transparency.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-num">11</div>
+        <div class="stat-label">Risk Factors</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">200</div>
+        <div class="stat-label">Decision Trees</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Risk Tiers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">&lt;1s</div>
+        <div class="stat-label">Response Time</div>
+      </div>
+    </div>
+    <a href="#assess" class="btn-primary hero-cta">
+      <i class="fas fa-search-dollar"></i>
+      Assess a Borrower
+    </a>
+  </div>
+  <div class="hero-visual">
+    <div class="risk-orb risk-orb-low">LOW</div>
+    <div class="risk-orb risk-orb-mod">MOD</div>
+    <div class="risk-orb risk-orb-high">HIGH</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- HOW IT WORKS                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="how-it-works" id="how-it-works">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-label">THE PROCESS</div>
+      <h2 class="section-title">How LoanGuard Works</h2>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon"><i class="fas fa-user-pen"></i></div>
+        <h3>Enter Borrower Data</h3>
+        <p>Input financial details: income, loan amount, DTI ratio, credit history, and more. New customers with no credit history are handled separately.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon"><i class="fas fa-microchip"></i></div>
+        <h3>AI Analysis</h3>
+        <p>Our Random Forest model — 200 decision trees — evaluates all 11 risk factors simultaneously, just like an experienced credit analyst would.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon"><i class="fas fa-chart-pie"></i></div>
+        <h3>Risk Assessment</h3>
+        <p>Receive a detailed risk score, probability breakdown, visual analysis, and the top factors that drove the decision — fully explainable.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-icon"><i class="fas fa-handshake"></i></div>
+        <h3>Lending Decision</h3>
+        <p>Get a clear recommendation: Approve, Manual Review, or Deny — with actionable steps for borderline and high-risk applicants.</p>
+      </div>
+    </div>
+
+    <!-- Risk Tier Explainer -->
+    <div class="tier-explainer">
+      <div class="tier-card tier-low">
+        <div class="tier-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="tier-badge">LOW RISK</div>
+        <h4>Loan Approved</h4>
+        <p>Default probability ≤ 30%. Strong credit profile — proceed with standard loan terms.</p>
+      </div>
+      <div class="tier-card tier-mod">
+        <div class="tier-icon"><i class="fas fa-exclamation-circle"></i></div>
+        <div class="tier-badge">MODERATE RISK</div>
+        <h4>Manual Review</h4>
+        <p>Default probability 30–55%. Conditional approval with higher rate, collateral, or co-signer.</p>
+      </div>
+      <div class="tier-card tier-high">
+        <div class="tier-icon"><i class="fas fa-times-circle"></i></div>
+        <div class="tier-badge">HIGH RISK</div>
+        <h4>Loan Denied</h4>
+        <p>Default probability &gt; 55%. Risk of loss exceeds expected returns. Application rejected.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ASSESSMENT FORM                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="assessment-section" id="assess">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-label">RISK ASSESSMENT</div>
+      <h2 class="section-title">Evaluate a Borrower</h2>
+      <p class="section-subtitle">Fill in the applicant's financial details to receive an instant AI risk assessment.</p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="form-progress">
+      <div class="progress-step active" data-step="1">
+        <div class="ps-circle">1</div>
+        <span>Personal Info</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="2">
+        <div class="ps-circle">2</div>
+        <span>Loan Details</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="3">
+        <div class="ps-circle">3</div>
+        <span>Credit History</span>
+      </div>
+    </div>
+
+    <form id="loan-form" novalidate>
+      <!-- ── STEP 1: PERSONAL INFO ────────────────────────────────────── -->
+      <div class="form-step active" id="step-1">
+        <div class="form-card">
+          <h3 class="form-card-title"><i class="fas fa-user"></i> Personal & Financial Information</h3>
+
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="applicant_name">Applicant Full Name</label>
+              <div class="input-wrap">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="applicant_name" placeholder="e.g. Rajesh Kumar" />
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="applicant_email">Applicant Email <span class="required">*</span></label>
+              <div class="input-wrap">
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" id="applicant_email" placeholder="e.g. rajesh@example.com" required />
+              </div>
+              <span class="field-hint">Used to track assessment history and link multiple applications</span>
+            </div>
+
+            <div class="form-group">
+              <label for="annual_income">Annual Income (USD) <span class="required">*</span></label>
+              <div class="input-wrap">
+                <i class="fas fa-dollar-sign input-icon"></i>
+                <input type="number" id="annual_income" placeholder="e.g. 65000" min="10000" max="500000" required />
+              </div>
+              <span class="field-hint">Gross yearly income before taxes</span>
+            </div>
+
+            <div class="form-group">
+              <label for="employment_length">Employment Length (years) <span class="required">*</span></label>
+              <div class="input-wrap">
+                <i class="fas fa-briefcase input-icon"></i>
+                <input type="number" id="employment_length" placeholder="e.g. 5" min="0" max="45" step="0.5" required />
+              </div>
+              <span class="field-hint">Years at current or most recent job</span>
+            </div>
+
+            <div class="form-group">
+              <label for="home_ownership">Home Ownership <span class="required">*</span></label>
+              <div class="input-wrap select-wrap">
+                <i class="fas fa-home input-icon"></i>
+                <select id="home_ownership" required>
+                  <option value="">Select ownership type</option>
+                  <option value="0">Renting</option>
+                  <option value="1">Mortgage (paying off)</option>
+                  <option value="2">Owns Outright</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- New Customer Toggle — the "cold start" feature! -->
+            <div class="form-group full-width">
+              <div class="toggle-card" id="new-customer-toggle-card">
+                <div class="toggle-info">
+                  <div class="toggle-title">
+                    <i class="fas fa-user-plus"></i>
+                    New Customer (No Credit History)
+                  </div>
+                  <div class="toggle-desc">
+                    Enable this if the applicant has NO prior credit records —
+                    the AI will use the <strong>cold start protocol</strong> with
+                    conservative risk thresholds.
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="is_new_customer" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-next" onclick="nextStep(2)">
+              Next: Loan Details <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: LOAN DETAILS ─────────────────────────────────────── -->
+      <div class="form-step" id="step-2">
+        <div class="form-card">
+          <h3 class="form-card-title"><i class="fas fa-file-invoice-dollar"></i> Loan Details</h3>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="loan_amount">Loan Amount (USD) <span class="required">*</span></label>
+              <div class="input-wrap">
+                <i class="fas fa-coins input-icon"></i>
+                <input type="number" id="loan_amount" placeholder="e.g. 15000" min="500" max="100000" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="dti_ratio">Debt-to-Income Ratio (%) <span class="required">*</span></label>
+              <div class="input-wrap">
+                <i class="fas fa-percent input-icon"></i>
+                <input type="number" id="dti_ratio" placeholder="e.g. 28" min="0" max="80" step="0.1" required />
+              </div>
+              <span class="field-hint">
+                DTI = (monthly debt payments ÷ monthly income) × 100.
+                Example: $500 debt / $2000 income = 25%
+              </span>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="loan_purpose">Loan Purpose <span class="required">*</span></label>
+              <div class="input-wrap select-wrap">
+                <i class="fas fa-tag input-icon"></i>
+                <select id="loan_purpose" required>
+                  <option value="">Select purpose</option>
+                  <option value="0">Personal / Debt Consolidation</option>
+                  <option value="1">Education</option>
+                  <option value="2">Medical / Emergency</option>
+                  <option value="3">Home Improvement</option>
+                  <option value="4">Business</option>
+                  <option value="5">Auto / Vehicle</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Quick DTI calculator helper -->
+            <div class="form-group full-width">
+              <div class="helper-card">
+                <div class="helper-title"><i class="fas fa-calculator"></i> DTI Calculator (Optional Helper)</div>
+                <div class="dti-calc-grid">
+                  <div class="input-wrap">
+                    <i class="fas fa-calendar-day input-icon"></i>
+                    <input type="number" id="monthly_debt" placeholder="Monthly Debt ($)" min="0" />
+                  </div>
+                  <div class="input-wrap">
+                    <i class="fas fa-wallet input-icon"></i>
+                    <input type="number" id="monthly_income" placeholder="Monthly Income ($)" min="1" />
+                  </div>
+                  <button type="button" class="btn-calc" onclick="calculateDTI()">
+                    <i class="fas fa-equals"></i> Calculate
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-back" onclick="nextStep(1)">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="btn-next" onclick="nextStep(3)">
+              Next: Credit History <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: CREDIT HISTORY ───────────────────────────────────── -->
+      <div class="form-step" id="step-3">
+        <div class="form-card">
+          <h3 class="form-card-title">
+            <i class="fas fa-credit-card"></i> Credit History
+            <span class="optional-badge" id="credit-optional-badge"></span>
+          </h3>
+
+          <!-- New customer notice -->
+          <div class="new-customer-notice" id="new-customer-notice" style="display:none">
+            <i class="fas fa-info-circle"></i>
+            <div>
+              <strong>Cold Start Mode Active</strong><br/>
+              This applicant has no credit history. The AI will use conservative
+              default estimates for these fields. You may optionally provide any
+              data that <em>is</em> available to improve accuracy.
+              <br/><br/>
+              <strong>Recommended additional documents:</strong> Bank statements (6 months),
+              Utility/rent payment records, Employment verification letter.
+            </div>
+          </div>
+
+          <div class="form-grid" id="credit-fields">
+            <div class="form-group full-width">
+              <label for="credit_score">
+                Credit Score (FICO) <span id="cs-required" class="required">*</span>
+              </label>
+              <div class="credit-score-container">
+                <div class="input-wrap">
+                  <i class="fas fa-star input-icon"></i>
+                  <input type="number" id="credit_score" placeholder="e.g. 720" min="300" max="850" />
+                </div>
+                <div class="credit-score-indicator" id="cs-indicator">
+                  <div class="cs-bar">
+                    <div class="cs-fill" id="cs-fill" style="width:0%"></div>
+                    <div class="cs-marker" id="cs-marker" style="left:0%"></div>
+                  </div>
+                  <div class="cs-labels">
+                    <span style="color:#ef233c">Poor<br/>300</span>
+                    <span style="color:#fb8500">Fair<br/>580</span>
+                    <span style="color:#ffd60a">Good<br/>670</span>
+                    <span style="color:#06d6a0">V.Good<br/>740</span>
+                    <span style="color:#4cc9f0">Excep.<br/>800</span>
+                  </div>
+                </div>
+              </div>
+              <span class="field-hint">FICO score from credit bureau (300–850)</span>
+            </div>
+
+            <div class="form-group">
+              <label for="num_delinquencies">Past Delinquencies <span id="delinq-req" class="required">*</span></label>
+              <div class="input-wrap">
+                <i class="fas fa-exclamation-triangle input-icon"></i>
+                <input type="number" id="num_delinquencies" placeholder="e.g. 0" min="0" max="20" />
+              </div>
+              <span class="field-hint">Times 30+ days late on payments</span>
+            </div>
+
+            <div class="form-group">
+              <label for="credit_history_years">Credit History Length (years) <span id="ch-req" class="required">*</span></label>
+              <div class="input-wrap">
+                <i class="fas fa-history input-icon"></i>
+                <input type="number" id="credit_history_years" placeholder="e.g. 8" min="0" max="50" step="0.5" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="num_open_accounts">Open Credit Accounts <span id="oa-req" class="required">*</span></label>
+              <div class="input-wrap">
+                <i class="fas fa-layer-group input-icon"></i>
+                <input type="number" id="num_open_accounts" placeholder="e.g. 4" min="0" max="30" />
+              </div>
+              <span class="field-hint">Active credit cards, loans, lines of credit</span>
+            </div>
+
+            <div class="form-group">
+              <label for="num_inquiries">Recent Credit Inquiries <span id="inq-req" class="required">*</span></label>
+              <div class="input-wrap">
+                <i class="fas fa-search input-icon"></i>
+                <input type="number" id="num_inquiries" placeholder="e.g. 1" min="0" max="15" />
+              </div>
+              <span class="field-hint">Hard pulls in last 12 months (applying for credit)</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-back" onclick="nextStep(2)">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="submit" class="btn-submit" id="submit-btn">
+              <i class="fas fa-brain btn-submit-text"></i>
+              <span class="btn-submit-text">Run AI Assessment</span>
+              <div class="btn-loader" style="display:none">
+                <i class="fas fa-spinner fa-spin"></i> Analyzing...
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- RESULTS SECTION (hidden until form submitted)                          -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="results-section" id="results" style="display:none">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-label">ASSESSMENT COMPLETE</div>
+      <h2 class="section-title" id="result-applicant-name">Risk Assessment Results</h2>
+    </div>
+
+    <!-- ── TOP ROW: Decision Banner + Gauge ─────────────────────────── -->
+    <div class="results-top">
+
+      <!-- Decision Card -->
+      <div class="decision-card" id="decision-card">
+        <div class="decision-icon" id="decision-icon"></div>
+        <div class="decision-label" id="decision-label">LOAN APPROVED</div>
+        <div class="decision-level" id="decision-level">LOW RISK</div>
+        <div class="probability-display">
+          <div class="prob-item">
+            <div class="prob-value" id="default-prob-value">0%</div>
+            <div class="prob-label">Default Probability</div>
+          </div>
+          <div class="prob-divider"></div>
+          <div class="prob-item">
+            <div class="prob-value safe-color" id="safe-prob-value">100%</div>
+            <div class="prob-label">Safe Repayment</div>
+          </div>
+        </div>
+        <div class="confidence-row">
+          <span>AI Confidence</span>
+          <div class="confidence-bar">
+            <div class="confidence-fill" id="confidence-fill"></div>
+          </div>
+          <span id="confidence-value">--</span>
+        </div>
+        <!-- New customer badge -->
+        <div class="new-cust-badge" id="new-cust-badge" style="display:none">
+          <i class="fas fa-user-shield"></i> Cold Start Protocol Applied
+        </div>
+      </div>
+
+      <!-- Gauge -->
+      <div class="gauge-card">
+        <h3 class="gauge-title">Risk Gauge</h3>
+        <div class="gauge-container">
+          <canvas id="gauge-canvas" width="320" height="200"></canvas>
+          <div class="gauge-label-center">
+            <div class="gauge-percent" id="gauge-percent">0%</div>
+            <div class="gauge-sublabel">Default Risk</div>
+          </div>
+        </div>
+        <div class="gauge-legend">
+          <span class="gl-item gl-low">Low ≤30%</span>
+          <span class="gl-item gl-mod">Moderate 30–55%</span>
+          <span class="gl-item gl-high">High &gt;55%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DESCRIPTION & RECOMMENDATION ────────────────────────────── -->
+    <div class="desc-rec-row">
+      <div class="desc-card">
+        <div class="dr-label"><i class="fas fa-chart-line"></i> Assessment</div>
+        <p id="result-description"></p>
+      </div>
+      <div class="rec-card">
+        <div class="dr-label"><i class="fas fa-lightbulb"></i> Recommendation</div>
+        <p id="result-recommendation"></p>
+      </div>
+    </div>
+
+    <!-- ── CHARTS ROW ────────────────────────────────────────────────── -->
+    <div class="charts-row">
+
+      <!-- Radar Chart: applicant's profile across 6 dimensions -->
+      <div class="chart-card">
+        <h3 class="chart-title"><i class="fas fa-spider"></i> Financial Profile Radar</h3>
+        <p class="chart-subtitle">Normalized scores across 6 key risk dimensions (higher = safer)</p>
+        <div class="chart-container">
+          <canvas id="radar-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Feature Importance Bar Chart -->
+      <div class="chart-card">
+        <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Model Feature Importance</h3>
+        <p class="chart-subtitle">Which factors the AI weighs most heavily across all decisions</p>
+        <div class="chart-container">
+          <canvas id="importance-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FACTOR ANALYSIS TABLE ─────────────────────────────────────── -->
+    <div class="factors-card">
+      <h3 class="factors-title"><i class="fas fa-list-check"></i> Key Decision Factors</h3>
+      <p class="factors-subtitle">These are the specific factors from this applicant's profile that most influenced the AI decision.</p>
+      <div id="factors-grid" class="factors-grid"></div>
+    </div>
+
+    <!-- ── RE-ASSESS BUTTON ──────────────────────────────────────────── -->
+    <div class="reassess-row">
+      <button class="btn-reassess" onclick="resetForm()">
+        <i class="fas fa-redo"></i> Assess Another Borrower
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<footer class="site-footer-bottom">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo-icon"><i class="fas fa-shield-halved"></i></span>
+      <span>LoanGuard AI</span>
+    </div>
+    <p class="footer-note">
+      Data Analytics Project · Random Forest Classifier ·
+      <span class="accent">For educational purposes only</span>
+    </p>
+    <p class="footer-sub">Features: Credit Score · DTI · Delinquencies · Employment · Income · Loan Amount · Home Ownership · Credit History · Open Accounts · Inquiries · Loan Purpose</p>
+  </div>
+</footer>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

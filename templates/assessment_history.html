@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assessment History — LoanGuard AI</title>
+
+  <!-- Font Awesome: icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <style>
+    /* ── ASSESSMENT HISTORY SPECIFIC STYLES ──────────────────────────────── */
+    .history-hero {
+      margin-top: 100px;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .history-hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .history-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .search-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      margin-bottom: 40px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .search-form {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .search-form .form-group {
+      flex: 1;
+      min-width: 250px;
+      margin: 0;
+    }
+
+    .search-form label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .search-form .input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+    }
+
+    .search-form .input-wrap:focus-within {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
+    }
+
+    .search-form input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .search-form input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-icon {
+      color: var(--accent-2);
+      margin-right: 10px;
+      font-size: 1.1rem;
+    }
+
+    .btn-search {
+      padding: 12px 30px;
+      background: var(--gradient-main);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-search:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(30, 86, 200, 0.3);
+    }
+
+    .btn-search:active {
+      transform: translateY(0);
+    }
+
+    .btn-search:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ── RESULTS SECTION ───────────────────────────────────────────────── */
+    .results-area {
+      min-height: 200px;
+    }
+
+    .no-data-message {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .no-data-message i {
+      font-size: 3rem;
+      color: var(--accent-2);
+      margin-bottom: 20px;
+      display: block;
+      opacity: 0.6;
+    }
+
+    .no-data-message h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .error-message {
+      background: rgba(239, 35, 60, 0.1);
+      border: 1px solid var(--risk-high);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 20px;
+      color: #ff6b7a;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .error-message i {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    /* ── ASSESSMENT TABLE ──────────────────────────────────────────────── */
+    .history-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-box .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-2);
+      margin-bottom: 8px;
+    }
+
+    .stat-box .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .assessments-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .assessments-table thead {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .assessments-table th {
+      padding: 18px 20px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .assessments-table td {
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+      color: var(--text-primary);
+    }
+
+    .assessments-table tbody tr {
+      transition: background 0.2s ease;
+    }
+
+    .assessments-table tbody tr:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .assessment-date {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-family: var(--font-mono);
+    }
+
+    .assessment-name {
+      font-weight: 500;
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .risk-badge.low {
+      background: rgba(6, 214, 160, 0.15);
+      color: var(--risk-low);
+      border: 1px solid rgba(6, 214, 160, 0.3);
+    }
+
+    .risk-badge.moderate {
+      background: rgba(251, 133, 0, 0.15);
+      color: var(--risk-mod);
+      border: 1px solid rgba(251, 133, 0, 0.3);
+    }
+
+    .risk-badge.high {
+      background: rgba(239, 35, 60, 0.15);
+      color: var(--risk-high);
+      border: 1px solid rgba(239, 35, 60, 0.3);
+    }
+
+    .probability-cell {
+      font-weight: 500;
+      font-family: var(--font-mono);
+      color: var(--accent-2);
+    }
+
+    .decision-cell {
+      font-weight: 500;
+    }
+
+    .expand-btn {
+      background: none;
+      border: none;
+      color: var(--accent-2);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .expand-btn:hover {
+      background: rgba(201, 168, 76, 0.1);
+      transform: scale(1.1);
+    }
+
+    /* ── EXPANDED DETAILS ──────────────────────────────────────────────── */
+    .details-row {
+      display: none;
+    }
+
+    .details-row.open {
+      display: table-row;
+    }
+
+    .details-content {
+      background: rgba(30, 86, 200, 0.05);
+      padding: 30px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(30, 86, 200, 0.1);
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .detail-value {
+      font-size: 1rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .detail-value.highlight {
+      color: var(--accent-2);
+      font-family: var(--font-mono);
+    }
+
+    /* ── LOADING STATE ─────────────────────────────────────────────────── */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(201, 168, 76, 0.2);
+      border-top-color: var(--accent-2);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .history-hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .search-form {
+        flex-direction: column;
+      }
+
+      .search-form .form-group {
+        min-width: 100%;
+      }
+
+      .btn-search {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .assessments-table {
+        font-size: 0.9rem;
+      }
+
+      .assessments-table th,
+      .assessments-table td {
+        padding: 12px 10px;
+      }
+
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- HEADER / NAV                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon"><i class="fas fa-shield-halved"></i></span>
+      <span class="logo-text">Loan<span class="accent">Guard</span> AI</span>
+    </div>
+    <nav class="header-nav">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/#assess" class="nav-link">Start Assessment</a>
+      <a href="/assessment-history-page" class="nav-link nav-cta">Assessment History</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- HISTORY PAGE HERO                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="history-hero">
+  <div class="history-container">
+    <div class="section-header">
+      <div class="section-label"><i class="fas fa-history"></i> ASSESSMENT HISTORY</div>
+      <h1>View Your Past Assessments</h1>
+      <p class="section-subtitle">Look up your assessment history by entering your email address</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- SEARCH FORM                                                            -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="history-container" style="padding: 0 20px; margin-bottom: 60px;">
+  <div class="search-card">
+    <form id="history-search-form" onsubmit="searchHistory(event)">
+      <div class="search-form">
+        <div class="form-group">
+          <label for="search-email">Applicant Email <span style="color: var(--risk-high);">*</span></label>
+          <div class="input-wrap">
+            <i class="fas fa-envelope input-icon"></i>
+            <input
+              type="email"
+              id="search-email"
+              placeholder="e.g. rajesh@example.com"
+              required
+            />
+          </div>
+        </div>
+        <button type="submit" class="btn-search" id="search-btn">
+          <i class="fas fa-search"></i>
+          <span>Search History</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- RESULTS AREA                                                           -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="results-area" id="results-area">
+    <div class="no-data-message">
+      <i class="fas fa-inbox"></i>
+      <h3>No assessments yet</h3>
+      <p>Enter an email address above to view assessment history</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<footer class="site-footer-bottom" style="margin-top: 80px;">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo-icon"><i class="fas fa-shield-halved"></i></span>
+      <span>LoanGuard AI</span>
+    </div>
+    <p class="footer-note">
+      Data Analytics Project · Random Forest Classifier ·
+      <span class="accent">For educational purposes only</span>
+    </p>
+  </div>
+</footer>
+
+<script src="/static/js/main.js"></script>
+<script>
+  // ─────────────────────────────────────────────────────────────────────────
+  // ASSESSMENT HISTORY PAGE LOGIC
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async function searchHistory(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('search-email').value.trim();
+    const searchBtn = document.getElementById('search-btn');
+    const resultsArea = document.getElementById('results-area');
+
+    if (!email) {
+      showError('Please enter an email address');
+      return;
+    }
+
+    // Show loading state
+    searchBtn.disabled = true;
+    searchBtn.innerHTML = '<div class="loading-spinner"></div><span>Searching...</span>';
+
+    try {
+      const response = await fetch(`/assessment-history/${encodeURIComponent(email)}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch history');
+      }
+
+      if (data.assessments && data.assessments.length > 0) {
+        renderAssessmentTable(data);
+      } else {
+        resultsArea.innerHTML = `
+          <div class="no-data-message">
+            <i class="fas fa-search"></i>
+            <h3>No assessments found</h3>
+            <p>No assessment history found for <strong>${escapeHtml(email)}</strong></p>
+            <p style="font-size: 0.9rem; margin-top: 15px;">
+              <a href="/" style="color: var(--accent-2); text-decoration: none;">
+                → Start a new assessment
+              </a>
+            </p>
+          </div>
+        `;
+      }
+    } catch (error) {
+      showError(error.message || 'Failed to fetch assessment history');
+    } finally {
+      searchBtn.disabled = false;
+      searchBtn.innerHTML = '<i class="fas fa-search"></i><span>Search History</span>';
+    }
+  }
+
+  function renderAssessmentTable(data) {
+    const resultsArea = document.getElementById('results-area');
+    const assessments = data.assessments;
+
+    // Count by risk level
+    const riskCounts = { LOW: 0, MODERATE: 0, HIGH: 0 };
+    assessments.forEach(a => {
+      const level = a.prediction.risk_level;
+      if (riskCounts.hasOwnProperty(level)) {
+        riskCounts[level]++;
+      }
+    });
+
+    // Build stats section
+    const statsHtml = `
+      <div class="history-stats">
+        <div class="stat-box">
+          <div class="stat-value">${assessments.length}</div>
+          <div class="stat-label">Total Assessments</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" style="color: var(--risk-low);">${riskCounts.LOW}</div>
+          <div class="stat-label">Low Risk</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" style="color: var(--risk-mod);">${riskCounts.MODERATE}</div>
+          <div class="stat-label">Moderate</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" style="color: var(--risk-high);">${riskCounts.HIGH}</div>
+          <div class="stat-label">High Risk</div>
+        </div>
+      </div>
+    `;
+
+    // Build table rows
+    let tableHtml = `
+      <table class="assessments-table">
+        <thead>
+          <tr>
+            <th style="width: 160px;">Assessment Date</th>
+            <th style="width: 150px;">Name</th>
+            <th style="width: 120px;">Risk Level</th>
+            <th style="width: 140px;">Decision</th>
+            <th style="width: 130px;">Default Risk</th>
+            <th style="width: 80px;">Loan ($)</th>
+            <th style="width: 60px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    assessments.forEach((assessment, idx) => {
+      const timestamp = new Date(assessment.timestamp);
+      const dateStr = timestamp.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      const timeStr = timestamp.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const name = assessment.applicant_name || 'Unknown';
+      const riskLevel = assessment.prediction.risk_level;
+      const decision = assessment.prediction.decision;
+      const defaultProb = assessment.prediction.default_probability.toFixed(1);
+      const loanAmount = (assessment.form_data.loan_amount || 0).toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+
+      const riskBadgeClass = riskLevel.toLowerCase();
+
+      tableHtml += `
+        <tr>
+          <td>
+            <div class="assessment-date">
+              <div>${dateStr}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">${timeStr}</div>
+            </div>
+          </td>
+          <td><span class="assessment-name">${escapeHtml(name)}</span></td>
+          <td><span class="risk-badge ${riskBadgeClass}">${riskLevel}</span></td>
+          <td><span class="decision-cell">${escapeHtml(decision)}</span></td>
+          <td><span class="probability-cell">${defaultProb}%</span></td>
+          <td>${loanAmount}</td>
+          <td><button class="expand-btn" onclick="toggleDetails(${idx})" title="View Details">
+            <i class="fas fa-chevron-down"></i>
+          </button></td>
+        </tr>
+        <tr class="details-row" id="details-${idx}">
+          <td colspan="7">
+            <div class="details-content">
+              <div class="details-grid">
+                <div class="detail-item">
+                  <div class="detail-label">Annual Income</div>
+                  <div class="detail-value highlight">
+                    $${(assessment.form_data.annual_income || 0).toLocaleString('en-US')}
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">Credit Score</div>
+                  <div class="detail-value highlight">
+                    ${assessment.form_data.credit_score || 'N/A'}
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">DTI Ratio</div>
+                  <div class="detail-value highlight">
+                    ${assessment.form_data.dti_ratio ? assessment.form_data.dti_ratio.toFixed(1) + '%' : 'N/A'}
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">Employment Length</div>
+                  <div class="detail-value highlight">
+                    ${assessment.form_data.employment_length ? assessment.form_data.employment_length.toFixed(1) + ' yrs' : 'N/A'}
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">Delinquencies</div>
+                  <div class="detail-value highlight">
+                    ${assessment.form_data.num_delinquencies || 0}
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">Credit History</div>
+                  <div class="detail-value highlight">
+                    ${assessment.form_data.credit_history_years ? assessment.form_data.credit_history_years.toFixed(1) + ' yrs' : 'N/A'}
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">Safe Probability</div>
+                  <div class="detail-value" style="color: var(--risk-low);">
+                    ${assessment.prediction.safe_probability.toFixed(1)}%
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">AI Confidence</div>
+                  <div class="detail-value">
+                    ${assessment.prediction.confidence || 'N/A'}%
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    tableHtml += `
+      </tbody>
+      </table>
+    `;
+
+    resultsArea.innerHTML = statsHtml + tableHtml;
+  }
+
+  function toggleDetails(idx) {
+    const detailsRow = document.getElementById(`details-${idx}`);
+    const btn = event.target.closest('.expand-btn');
+
+    detailsRow.classList.toggle('open');
+    btn.innerHTML = detailsRow.classList.contains('open')
+      ? '<i class="fas fa-chevron-up"></i>'
+      : '<i class="fas fa-chevron-down"></i>';
+  }
+
+  function showError(message) {
+    const resultsArea = document.getElementById('results-area');
+    resultsArea.innerHTML = `
+      <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>${escapeHtml(message)}</span>
+      </div>
+    `;
+  }
+
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+</script>
+
+</body>
+</html>
